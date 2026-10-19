@@ -1,0 +1,61 @@
+name: AS Award Monitor
+
+on:
+  schedule:
+    # GitHub cron is UTC; every 30 minutes
+    - cron: "*/30 * * * *"
+  workflow_dispatch:
+    inputs:
+      push_test:
+        description: 'Send WeChat link-test message after a clean run'
+        type: boolean
+        default: false
+
+# A slow run may overlap the next schedule tick; queue instead of canceling
+concurrency:
+  group: as-monitor
+  cancel-in-progress: false
+
+permissions:
+  contents: write
+
+jobs:
+  monitor:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+
+      - name: Run monitor
+        env:
+          WECHAT_WEBHOOK: ${{ secrets.WECHAT_WEBHOOK }}
+          AS_PUSH_TEST: ${{ github.event_name == 'workflow_dispatch' && inputs.push_test && '1' || '' }}
+        run: |
+          set +e
+          python -u monitor.py 2>&1 | tee run_output.txt
+          code=${PIPESTATUS[0]}
+          echo "exit_code=$code" >> "$GITHUB_OUTPUT"
+          exit 0
+        id: run
+
+      - name: Commit state and logs
+        run: |
+          git config user.name "as-monitor-bot"
+          git config user.email "actions@users.noreply.github.com"
+          git add -A
+          git commit -m "monitor run $(date -u +'%Y-%m-%d %H:%M UTC') [exit=${{ steps.run.outputs.exit_code }}]" --allow-empty
+          git push
+
+      - name: Summary
+        if: always()
+        run: |
+          {
+            echo "## Monitor run (exit=${{ steps.run.outputs.exit_code }})"      
+            echo '```'
+            tail -n 30 run_output.txt 2>/dev/null || echo "(no output)"
+            echo '```'
+          } >> "$GITHUB_STEP_SUMMARY"
