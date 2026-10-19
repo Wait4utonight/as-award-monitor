@@ -1,28 +1,37 @@
 # AS Award Monitor (GitHub Actions)
 
-Alaska/Hawaiian Airlines partner-business award-space monitor. Runs on a GitHub
-hosted runner (US egress) every 30 minutes, checks three date windows between
-15 Asia cities and 4 US-West cities at a 95,000-point cap, and pushes new
-deals to an Enterprise WeChat webhook.
+Alaska/Hawaiian Airlines partner-business award-space monitor. Runs on GitHub
+Actions every 30 minutes, checking three date windows between 15 Asia cities
+and 4 US-West cities at a 95,000-point cap, and pushing new deals to an
+Enterprise WeChat webhook.
 
-## How it works
+## Architecture (sharded matrix)
 
-- `monitor.py` — the monitor. Each run:
-  1. Pre-checks 6 probe routes; aborts with no side effects if the HA API is
-     blocked.
-  2. Queries partner-business award calendars (rate-limited, 2 workers).
-  3. Tracks deals in `as_award_state_*.json` (new / disappeared / reappeared
-     after 24h = new).
-  4. Pushes only genuinely new deals to WeChat.
-- `.github/workflows/monitor.yml` — runs the script on schedule, then commits
-  the updated state files and logs back to this repository (this is also what
-  keeps the scheduled workflow from being auto-disabled after 60 days of
-  inactivity).
+HA/Fastly allows only a small number of consecutive queries per IP before
+returning 406, so a single long run always gets throttled. The workflow
+therefore splits the 240 queries across 16 parallel jobs:
+
+```
+monitor (matrix x16)                    aggregate
+  shard i: 15 queries, own IP  ─► artifact ─► merge shards
+                                        ├─ new deals / reappeared (24h+) -> WeChat
+                                        ├─ disappeared marks (covered routes only)
+                                        ├─ state files committed back to repo
+                                        └─ degraded (<70% ok) -> skip disappearance marks
+```
+
+- `monitor.py` — probe + query engine. Set `AS_SHARD_INDEX` / `AS_SHARD_COUNT`
+  for shard mode (sequential, globally paced ~2.5s/req, 45s backoff on 406).
+  Without those vars it runs full-mode locally (e.g. over a VPN).
+- `aggregator.py` — runs in the aggregate job. Merges `shards/shard_result_*.json`
+  against the repo state files, updates them, pushes WeChat, logs.
+- State files `as_award_state_*.json` live in this repo and are committed after
+  each run — this also keeps the scheduled workflow from being auto-disabled.
 
 ## Secrets
 
-- `WECHAT_WEBHOOK` — Enterprise WeChat group-bot webhook URL. Set under
-  Settings → Secrets and variables → Actions.
+- `WECHAT_WEBHOOK` — Enterprise WeChat group-bot webhook URL
+  (Settings → Secrets and variables → Actions).
 
 ## Tasks
 
