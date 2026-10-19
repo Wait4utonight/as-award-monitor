@@ -1,33 +1,7 @@
 
 ============================================================
-AS Award Monitor (GitHub Actions edition)
-Time: 2026-10-19 22:26:59 (+08) | UTC run 2026-10-19 14:26:59
-Egress: direct | ExitIP: 172.214.110.70 (US AS8075 Microsoft Corporation)
-WeChat push: ON
-============================================================
-PRE-CHECK OK (ok=6/6) -> running.
-
-############################################################
-# Task 1/3: 亚洲→美西 2027-09-17~09-19
-# Routes: 60 | Dates: 2027-09-17~2027-09-19
-# Max: 95,000pts | Workers: 2 x 2.0s
-############################################################
-    [406 backoff 45s (attempt 1)]
-    [406 backoff 45s (attempt 1)]
-    [406 backoff 45s (attempt 2)]
-    [406 backoff 45s (attempt 2)]
-    [406 backoff 45s (attempt 1)]
-    [406 backoff 45s (attempt 1)]
-    [406 backoff 45s (attempt 2)]
-    [406 backoff 45s (attempt 2)]
-    [406 backoff 45s (attempt 1)]
-    [406 backoff 45s (attempt 1)]
-    [406 backoff 45s (attempt 2)]
-    [406 backoff 45s (attempt 2)]
-  !! MID-RUN ABORT: fail_rate=29% blocked=5. State NOT saved.
-    [406 backoff 45s (attempt 1)]
-    [406 backoff 45s (attempt 2)]
-
-============================================================
-All done. Total: 0 deals, 0 new | exit=3
-============================================================
+Traceback (most recent call last):
+  File "/home/runner/work/as-award-monitor/as-award-monitor/monitor.py", line 525, in <module>
+    f"{' shard mode' if SHARD_MODE else ''}", flush=True)
+                        ^^^^^^^^^^
+NameError: name 'SHARD_MODE' is not defined
