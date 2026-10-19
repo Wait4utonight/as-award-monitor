@@ -99,6 +99,19 @@ CONFIGS = [
         'calendar_dates': ['2026-12-10'],
     },
 ]
+CONFIG_BY_NAME = {c['name']: c for c in CONFIGS}
+
+
+def all_tasks():
+    """Flat deterministic list of (config_name, origin, dest, calendar_date)."""
+    out = []
+    for cfg in CONFIGS:
+        for cal in cfg['calendar_dates']:
+            for o in cfg['origins']:
+                for d in cfg['destinations']:
+                    out.append((cfg['name'], o, d, cal))
+    return out
+
 
 # ==================== API CORE ====================
 HA_BASE = 'https://www.hawaiianairlines.com'
@@ -230,6 +243,8 @@ def precheck():
         ('SEA', 'ICN', '2026-12-10'), ('SAN', 'KIX', '2026-12-10'),
         ('HND', 'LAX', '2027-09-17'), ('ICN', 'SFO', '2027-09-17'),
     ]
+    if SHARD_MODE:
+        probes = probes[:3]
     blocked, ok = 0, 0
     for o, d, od in probes:
         status, _ = http_get(build_calendar_url(o, d, od), timeout=15)
@@ -238,6 +253,11 @@ def precheck():
         elif status == 200:
             ok += 1
         time.sleep(1.0)
+    if SHARD_MODE:
+        # Only hard geo-block stops a shard; transient throttle waves are
+        # handled per-query by the 406 backoff.
+        geo_blocked = (ok == 0 and blocked >= 2)
+        return (not geo_blocked), f"blocked={blocked} ok={ok}"
     if blocked > 0 or ok == 0:
         return False, f"blocked={blocked} ok={ok}"
     return True, f"ok={ok}/{len(probes)}"
@@ -450,9 +470,59 @@ def run_config(config, config_idx):
     return all_deals, new_deals
 
 
+# ==================== SHARD MODE ====================
+def run_shard():
+    """Run one slice of the global task list on a dedicated runner IP.
+    Writes shard_result_<i>.json for the aggregate job; never touches state
+    files directly."""
+    tasks = all_tasks()
+    lo = SHARD_INDEX * len(tasks) // SHARD_COUNT
+    hi = (SHARD_INDEX + 1) * len(tasks) // SHARD_COUNT
+    my = tasks[lo:hi]
+    print(f"Shard {SHARD_INDEX + 1}/{SHARD_COUNT}: queries {lo}..{hi} ({len(my)} tasks)", flush=True)
+
+    results, blocked, failed = [], 0, 0
+    for tag, o, d, cal in my:
+        cfg = CONFIG_BY_NAME[tag]
+        try:
+            cal_dates, status = fetch_business_calendar(o, d, cal)
+        except Exception:
+            cal_dates, status = [], 0
+        if status == 200:
+            dates_seen = [dt for dt in cfg['target_dates'] if any(x[0] == dt for x in cal_dates)]
+            deals = [{'origin': o, 'destination': d, 'date': dt, 'points': pt, 'price': pr}
+                     for dt, pt, pr in cal_dates
+                     if dt in cfg['target_dates'] and 0 < pt <= MAX_POINTS]
+            results.append({'config': tag, 'o': o, 'd': d, 'cal': cal, 'ok': True,
+                            'dates_seen': dates_seen, 'deals': deals})
+        else:
+            failed += 1
+            if status == 406:
+                blocked += 1
+            results.append({'config': tag, 'o': o, 'd': d, 'cal': cal, 'ok': False,
+                            'dates_seen': [], 'deals': []})
+        if len(results) % 5 == 0:
+            print(f"  [{len(results)}/{len(my)}] failed={failed} blocked={blocked}", flush=True)
+
+    hard_fail = blocked >= 3 or failed > max(2, int(len(my) * 0.30))
+    payload = {'shard': SHARD_INDEX, 'status': 'aborted' if hard_fail else 'ok',
+               'checked': len(my), 'failed': failed, 'blocked': blocked,
+               'results': results}
+    fn = os.path.join(SCRIPT_DIR, f'shard_result_{SHARD_INDEX}.json')
+    with open(fn, 'w', encoding='utf-8') as f:
+        json.dump(payload, f, ensure_ascii=False)
+    found = sum(len(x['deals']) for x in results)
+    print(f"Shard {SHARD_INDEX + 1}/{SHARD_COUNT} done: status={payload['status']} "
+          f"found={found} failed={failed} blocked={blocked}", flush=True)
+    log_to_file(f"[{now_cn().isoformat()}] SHARD {SHARD_INDEX} {payload['status']}: "
+                f"{len(my)}q fail={failed} blocked={blocked} deals={found}")
+    sys.exit(3 if hard_fail else 0)
+
+
 if __name__ == '__main__':
     print(f"\n{'='*60}", flush=True)
-    print(f"AS Award Monitor (GitHub Actions edition)", flush=True)
+    print(f"AS Award Monitor (GitHub Actions edition)"
+          f"{' shard mode' if SHARD_MODE else ''}", flush=True)
     print(f"Time: {now_cn().strftime('%Y-%m-%d %H:%M:%S')} (+08) | UTC run {datetime.now(timezone.utc).strftime('%Y-%m-%d %H:%M:%S')}", flush=True)
     print(f"Egress: {'proxy=' + AS_PROXY_PREFIX if AS_PROXY_PREFIX else 'direct'} | ExitIP: {get_exit_ip()}", flush=True)
     print(f"WeChat push: {'ON' if WECHAT_WEBHOOK else 'OFF (no webhook)'}", flush=True)
@@ -460,7 +530,15 @@ if __name__ == '__main__':
 
     ok, detail = precheck()
     if not ok:
-        print(f"PRE-CHECK FAILED ({detail}) -> HA API blocked/unreachable. No queries, state untouched. Exit 1.", flush=True)
+        print(f"PRE-CHECK FAILED ({detail}) -> HA API blocked/unreachable.", flush=True)
+        if SHARD_MODE:
+            fn = os.path.join(SCRIPT_DIR, f'shard_result_{SHARD_INDEX}.json')
+            with open(fn, 'w', encoding='utf-8') as f:
+                json.dump({'shard': SHARD_INDEX, 'status': 'blocked', 'checked': 0,
+                           'failed': 0, 'blocked': 0, 'results': []}, f)
+            log_to_file(f"[{now_cn().isoformat()}] SHARD {SHARD_INDEX} PRECHECK-FAIL {detail}.")
+            sys.exit(1)
+        print(f"No queries, state untouched. Exit 1.", flush=True)
         log_to_file(f"[{now_cn().isoformat()}] PRECHECK-FAIL {detail}. No run, state untouched.")
         if WECHAT_WEBHOOK and vpn_alert_dedup_ok():
             msg = (f"## ⚠️ AS里程监控中止：HA API封锁\n\n**时间**: {now_cn().strftime('%Y-%m-%d %H:%M')}\n\n"
@@ -472,6 +550,10 @@ if __name__ == '__main__':
                 print("Block alert pushed (dedup 6h).", flush=True)
         sys.exit(1)
     print(f"PRE-CHECK OK ({detail}) -> running.", flush=True)
+
+    if SHARD_MODE:
+        run_shard()
+        sys.exit(0)
 
     exit_code = 0
     all_total = all_new = 0
