@@ -7,19 +7,22 @@ are committed back after each run by the workflow, preserving deal history.
 Safety design (state can never be polluted by a blocked/degraded run):
   1) PRE-CHECK: 6 probe queries before any search. All/dead-blocked -> exit 1,
      no queries, no state write.
-  2) MID-RUN GUARD: >30% no-data routes or >=3 blocked responses -> abort,
-     state NOT saved.
-  3) Rate limit: 2 workers * 1.2s interval (~1.7 req/s).
+  2) MID-RUN GUARD: >=5 blocked responses or >35% no-data routes (after 15
+     checked) -> abort, state NOT saved.
+  3) Global request pacing (default 2.0s between request starts across all
+     threads) + 45s backoff-and-retry on 406 (Fastly throttle waves are
+     transient).
 
 Env:
   WECHAT_WEBHOOK   enterprise WeChat webhook (from repo secret). Empty = no push.
   AS_PROXY_PREFIX  optional forwarder prefix (https://worker/?url=)
-  AS_MIN_INTERVAL  default 1.2
+  AS_MIN_INTERVAL  default 2.0
+  AS_BACKOFF       406 cooldown seconds, default 45
   AS_WORKERS       default 2
   AS_PUSH_TEST     1 = send a link-test message on clean run (setup only)
 """
 
-import json, time, sys, os, urllib.request, urllib.parse, urllib.error, gzip
+import json, time, sys, os, threading, urllib.request, urllib.parse, urllib.error, gzip
 from datetime import datetime, timedelta, timezone
 
 SCRIPT_DIR = os.path.dirname(os.path.abspath(__file__))
@@ -28,9 +31,24 @@ DEDUP_FILE = os.path.join(SCRIPT_DIR, "as_alert_dedup.json")
 
 WECHAT_WEBHOOK = os.environ.get('WECHAT_WEBHOOK', '').strip()
 AS_PROXY_PREFIX = os.environ.get('AS_PROXY_PREFIX', '').strip()
-MIN_INTERVAL = float(os.environ.get('AS_MIN_INTERVAL', '1.2'))
+MIN_INTERVAL = float(os.environ.get('AS_MIN_INTERVAL', '2.0'))
 WORKERS = max(1, int(os.environ.get('AS_WORKERS', '2')))
+BACKOFF = float(os.environ.get('AS_BACKOFF', '45'))
 PUSH_TEST = os.environ.get('AS_PUSH_TEST', '') in ('1', 'true', 'True')
+
+# Global pacemaker: enforces MIN_INTERVAL between request starts across all
+# threads. Prevents burst-triggered Fastly throttling.
+_pace_lock = threading.Lock()
+_last_start = [0.0]
+
+
+def pace():
+    with _pace_lock:
+        now = time.monotonic()
+        wait = _last_start[0] + MIN_INTERVAL - now
+        if wait > 0:
+            time.sleep(wait)
+        _last_start[0] = time.monotonic()
 
 TZ8 = timezone(timedelta(hours=8))
 
@@ -93,13 +111,16 @@ HTTP_HEADERS = {
 
 
 def http_get(url, timeout=20):
-    """Returns (status, text). 406 = geo-block. 0 = connection error."""
+    """Returns (status, text). 406 = geo-block/throttle. 0 = connection error.
+    406 responses are retried once after a BACKOFF-second cooldown, because
+    Fastly throttle waves are transient."""
     if AS_PROXY_PREFIX:
         fetch_url = AS_PROXY_PREFIX + urllib.parse.quote(url, safe='')
     else:
         fetch_url = url
-    req = urllib.request.Request(fetch_url, headers=HTTP_HEADERS)
-    for attempt in (1, 2):
+    for attempt in (1, 2, 3):
+        req = urllib.request.Request(fetch_url, headers=HTTP_HEADERS)
+        pace()
         try:
             with urllib.request.urlopen(req, timeout=timeout) as resp:
                 data = resp.read()
@@ -109,9 +130,13 @@ def http_get(url, timeout=20):
         except urllib.error.HTTPError as e:
             try: e.read()
             except Exception: pass
+            if e.code == 406 and attempt <= 2:
+                print(f'    [406 backoff {BACKOFF:.0f}s (attempt {attempt})]', flush=True)
+                time.sleep(BACKOFF)
+                continue
             return e.code, ''
         except Exception:
-            if attempt == 2:
+            if attempt == 3:
                 return 0, ''
             time.sleep(3)
     return 0, ''
@@ -318,7 +343,6 @@ def run_config(config, config_idx):
                 tasks.append((origin, dest, cal_date))
 
     def worker(origin, dest, cal_date):
-        time.sleep(MIN_INTERVAL * (hash((origin, dest, cal_date)) % WORKERS) / 2)
         deals = []
         try:
             cal_dates, status = fetch_business_calendar(origin, dest, cal_date)
@@ -379,9 +403,9 @@ def run_config(config, config_idx):
             except Exception:
                 nodata_count += 1
 
-            if routes_checked >= 10:
+            if routes_checked >= 15:
                 fail_rate = nodata_count / routes_checked
-                if fail_rate > 0.30 or blocked_count >= 3:
+                if fail_rate > 0.35 or blocked_count >= 5:
                     print(f"  !! MID-RUN ABORT: fail_rate={fail_rate:.0%} blocked={blocked_count}. State NOT saved.", flush=True)
                     log_to_file(f"[{now_cn().isoformat()}] MIDRUN-ABORT {config['name']}: "
                                 f"{routes_checked}/{len(tasks)} checked, fail={nodata_count}, blocked={blocked_count}. State untouched.")
