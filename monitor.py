@@ -31,10 +31,13 @@ DEDUP_FILE = os.path.join(SCRIPT_DIR, "as_alert_dedup.json")
 
 WECHAT_WEBHOOK = os.environ.get('WECHAT_WEBHOOK', '').strip()
 AS_PROXY_PREFIX = os.environ.get('AS_PROXY_PREFIX', '').strip()
-MIN_INTERVAL = float(os.environ.get('AS_MIN_INTERVAL', '2.0'))
+MIN_INTERVAL = float(os.environ.get('AS_MIN_INTERVAL', '2.5'))
 WORKERS = max(1, int(os.environ.get('AS_WORKERS', '2')))
 BACKOFF = float(os.environ.get('AS_BACKOFF', '45'))
 PUSH_TEST = os.environ.get('AS_PUSH_TEST', '') in ('1', 'true', 'True')
+SHARD_INDEX = int(os.environ.get('AS_SHARD_INDEX', '-1'))
+SHARD_COUNT = int(os.environ.get('AS_SHARD_COUNT', '0'))
+SHARD_MODE = SHARD_COUNT >= 1 and SHARD_INDEX >= 0
 
 # Global pacemaker: enforces MIN_INTERVAL between request starts across all
 # threads. Prevents burst-triggered Fastly throttling.
