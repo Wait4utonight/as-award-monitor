@@ -22,7 +22,12 @@ permissions:
 jobs:
   monitor:
     runs-on: ubuntu-latest
-    timeout-minutes: 20
+    timeout-minutes: 8
+    continue-on-error: true
+    strategy:
+      fail-fast: false
+      matrix:
+        shard: [0,1,2,3,4,5,6,7,8,9,10,11,12,13,14,15]
     steps:
       - uses: actions/checkout@v4
 
@@ -30,32 +35,73 @@ jobs:
         with:
           python-version: '3.12'
 
-      - name: Run monitor
+      - name: Run shard
         env:
-          WECHAT_WEBHOOK: ${{ secrets.WECHAT_WEBHOOK }}
-          AS_PUSH_TEST: ${{ github.event_name == 'workflow_dispatch' && inputs.push_test && '1' || '' }}
+          AS_SHARD_INDEX: ${{ matrix.shard }}
+          AS_SHARD_COUNT: '16'
+          AS_MIN_INTERVAL: '2.5'
         run: |
           set +e
-          python -u monitor.py 2>&1 | tee run_output.txt
+          python -u monitor.py 2>&1 | tee shard_output.txt
           code=${PIPESTATUS[0]}
           echo "exit_code=$code" >> "$GITHUB_OUTPUT"
           exit 0
         id: run
 
+      - name: Upload shard result
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: shard-${{ matrix.shard }}
+          path: shard_result_${{ matrix.shard }}.json
+          if-no-files-found: ignore
+
+  aggregate:
+    needs: monitor
+    if: always()
+    runs-on: ubuntu-latest
+    timeout-minutes: 8
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+
+      - name: Download shards
+        uses: actions/download-artifact@v4
+        with:
+          pattern: shard-*
+          path: shards
+          merge-multiple: true
+
+      - name: Aggregate
+        env:
+          WECHAT_WEBHOOK: ${{ secrets.WECHAT_WEBHOOK }}
+          AS_PUSH_TEST: ${{ github.event_name == 'workflow_dispatch' && inputs.push_test && '1' || '' }}
+        run: |
+          set +e
+          python -u aggregator.py 2>&1 | tee agg_output.txt
+          code=${PIPESTATUS[0]}
+          echo "exit_code=$code" >> "$GITHUB_OUTPUT"
+          exit 0
+        id: agg
+
       - name: Commit state and logs
+        if: always()
         run: |
           git config user.name "as-monitor-bot"
           git config user.email "actions@users.noreply.github.com"
           git add -A
-          git commit -m "monitor run $(date -u +'%Y-%m-%d %H:%M UTC') [exit=${{ steps.run.outputs.exit_code }}]" --allow-empty
+          git commit -m "monitor run $(date -u +'%Y-%m-%d %H:%M UTC') [agg=${{ steps.agg.outputs.exit_code }}]" --allow-empty
           git push
 
       - name: Summary
         if: always()
         run: |
           {
-            echo "## Monitor run (exit=${{ steps.run.outputs.exit_code }})"      
+            echo "## Monitor run (agg exit=${{ steps.agg.outputs.exit_code }})"
             echo '```'
-            tail -n 30 run_output.txt 2>/dev/null || echo "(no output)"
+            tail -n 40 agg_output.txt 2>/dev/null || echo "(no output)"
             echo '```'
           } >> "$GITHUB_STEP_SUMMARY"
