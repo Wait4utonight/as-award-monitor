@@ -5,3 +5,4 @@
 [2026-10-19T22:32:47.976637+08:00] MIDRUN-ABORT go_sep: 17/60 checked, fail=5, blocked=5. State untouched.
 [2026-10-19T22:34:25.437815+08:00] ABORTED (unhealthy): go_sep in 404.8s. State untouched.
 [2026-10-20T09:50:06.318698+08:00] AGG: no shard results found.
+[2026-10-20T09:56:39.245505+08:00] AGG: shards=16 ok=16 aborted=0 blocked=0 queries=240/240 new=0 degraded=False
