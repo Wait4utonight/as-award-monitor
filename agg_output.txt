@@ -1,21 +1,8 @@
 Shards: 16 (ok=16 aborted=0 blocked=0) | queries ok 240/240 (100%) | degraded=False
-  REAPPEARED [rt_dec]: LAX-MNL_2026-12-09_85000 (gone 378.2h)
-  NEW [rt_dec]: LAX-MNL_2026-12-10_85000
-  NEW [rt_dec]: LAX-MNL_2026-12-12_85000
-  NEW [rt_dec]: LAX-SGN_2026-12-11_85000
-  NEW [rt_dec]: SFO-MNL_2026-12-10_85000
-  NEW [rt_dec]: SFO-SGN_2026-12-11_85000
-  NEW [rt_dec]: SAN-MNL_2026-12-10_85000
-  NEW [rt_dec]: SAN-MNL_2026-12-12_85000
-  NEW [rt_dec]: SAN-SGN_2026-12-11_85000
-  NEW [rt_dec]: SEA-SIN_2026-12-10_85000
-  NEW [rt_dec]: SEA-KUL_2026-12-10_85000
-  NEW [rt_dec]: SEA-MNL_2026-12-10_75000
-  NEW [rt_dec]: SEA-SGN_2026-12-11_85000
-  DISAPPEARED [rt_dec]: LAX-NRT_2026-12-12_95000
-  DISAPPEARED [rt_dec]: SFO-SGN_2026-12-09_85000
-  DISAPPEARED [rt_dec]: SAN-SGN_2026-12-09_85000
-  DISAPPEARED [rt_dec]: SEA-SGN_2026-12-09_85000
-WeChat: pushed 13 new deal(s).
+  NEW [rt_dec]: SEA-SIN_2026-12-11_85000
+  DISAPPEARED [rt_dec]: LAX-MNL_2026-12-09_85000
+  DISAPPEARED [rt_dec]: SAN-MNL_2026-12-12_85000
+  DISAPPEARED [rt_dec]: SEA-SGN_2026-12-11_85000
+WeChat: pushed 1 new deal(s).
 
-Aggregate done: shards=16 (ok=16 aborted=0 blocked=0) | queries 240/240 | new deals 13 | degraded=False
+Aggregate done: shards=16 (ok=16 aborted=0 blocked=0) | queries 240/240 | new deals 1 | degraded=False
