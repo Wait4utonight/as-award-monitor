@@ -1,9 +1,6 @@
 name: AS Award Monitor
 
-on:
-  schedule:
-    # GitHub cron is UTC; every 30 minutes
-    - cron: "*/30 * * * *"
+on:  
   workflow_dispatch:
     inputs:
       push_test:
