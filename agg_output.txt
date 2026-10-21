@@ -1,7 +1,3 @@
-Shards: 16 (ok=15 aborted=1 blocked=0) | queries ok 236/240 (98%) | degraded=False
-  NEW [go_nyd]: MNL-LAX_2026-12-31_85000
-  NEW [go_nyd]: MNL-SFO_2026-12-31_85000
-  NEW [go_nyd]: MNL-SAN_2026-12-31_85000
-WeChat: pushed 3 new deal(s).
+Shards: 16 (ok=16 aborted=0 blocked=0) | queries ok 240/240 (100%) | degraded=False
 
-Aggregate done: shards=16 (ok=15 aborted=1 blocked=0) | queries 236/240 | new deals 3 | degraded=False
+Aggregate done: shards=16 (ok=16 aborted=0 blocked=0) | queries 240/240 | new deals 0 | degraded=False
