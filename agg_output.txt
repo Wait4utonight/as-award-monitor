@@ -1,9 +1,3 @@
-Shards: 16 (ok=16 aborted=0 blocked=0) | queries ok 239/240 (100%) | degraded=False
-  NEW [go_sep]: SIN-LAX_2027-09-17_85000
-  NEW [go_sep]: MNL-LAX_2027-09-17_85000
-  NEW [go_sep]: MNL-SFO_2027-09-17_75000
-  NEW [go_sep]: MNL-SEA_2027-09-17_75000
-  DISAPPEARED [go_sep]: MNL-SEA_2027-09-17_85000
-WeChat: pushed 4 new deal(s).
+Shards: 16 (ok=16 aborted=0 blocked=0) | queries ok 240/240 (100%) | degraded=False
 
-Aggregate done: shards=16 (ok=16 aborted=0 blocked=0) | queries 239/240 | new deals 4 | degraded=False
+Aggregate done: shards=16 (ok=16 aborted=0 blocked=0) | queries 240/240 | new deals 0 | degraded=False
