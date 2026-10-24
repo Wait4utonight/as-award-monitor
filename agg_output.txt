@@ -1,3 +1,30 @@
 Shards: 16 (ok=16 aborted=0 blocked=0) | queries ok 240/240 (100%) | degraded=False
+  NEW [go_sep]: BKK-LAX_2027-09-19_85000
+  NEW [go_sep]: BKK-SFO_2027-09-19_85000
+  NEW [go_sep]: BKK-SAN_2027-09-18_85000
+  NEW [go_sep]: KUL-SAN_2027-09-18_85000
+  NEW [go_sep]: HKG-SAN_2027-09-19_85000
+  NEW [go_sep]: MNL-LAX_2027-09-19_85000
+  NEW [go_sep]: MNL-SFO_2027-09-19_75000
+  NEW [go_sep]: MNL-SAN_2027-09-19_85000
+  NEW [go_sep]: MNL-SEA_2027-09-19_75000
+  NEW [go_sep]: SGN-LAX_2027-09-19_85000
+  NEW [go_sep]: SGN-SFO_2027-09-19_85000
+  NEW [go_sep]: SGN-SAN_2027-09-18_85000
+  DISAPPEARED [go_sep]: BKK-SEA_2027-09-17_85000
+  DISAPPEARED [go_sep]: HKG-SEA_2027-09-17_75000
+  DISAPPEARED [go_sep]: SGN-SEA_2027-09-17_85000
+  DISAPPEARED [go_sep]: BKK-LAX_2027-09-17_85000
+  DISAPPEARED [go_sep]: BKK-SFO_2027-09-17_85000
+  DISAPPEARED [go_sep]: HKG-SAN_2027-09-17_85000
+  DISAPPEARED [go_sep]: SGN-LAX_2027-09-17_85000
+  DISAPPEARED [go_sep]: SGN-SFO_2027-09-17_85000
+  DISAPPEARED [go_sep]: SIN-SFO_2027-09-17_85000
+  DISAPPEARED [go_sep]: SIN-SEA_2027-09-18_85000
+  DISAPPEARED [go_sep]: HKG-SFO_2027-09-17_75000
+  DISAPPEARED [go_sep]: BKK-SAN_2027-09-17_85000
+  DISAPPEARED [go_sep]: SGN-SAN_2027-09-17_85000
+  DISAPPEARED [go_sep]: MNL-SEA_2027-09-19_85000
+WeChat: pushed 12 new deal(s).
 
-Aggregate done: shards=16 (ok=16 aborted=0 blocked=0) | queries 240/240 | new deals 0 | degraded=False
+Aggregate done: shards=16 (ok=16 aborted=0 blocked=0) | queries 240/240 | new deals 12 | degraded=False
