@@ -1,3 +1,16 @@
-Shards: 16 (ok=16 aborted=0 blocked=0) | queries ok 238/240 (99%) | degraded=False
+Shards: 16 (ok=16 aborted=0 blocked=0) | queries ok 240/240 (100%) | degraded=False
+  DISAPPEARED [go_sep]: BKK-LAX_2027-09-18_85000
+  DISAPPEARED [go_sep]: BKK-SFO_2027-09-18_85000
+  DISAPPEARED [go_sep]: HKG-SAN_2027-09-18_85000
+  DISAPPEARED [go_sep]: MNL-SAN_2027-09-18_85000
+  DISAPPEARED [go_sep]: SGN-LAX_2027-09-18_85000
+  DISAPPEARED [go_sep]: SGN-SFO_2027-09-18_85000
+  DISAPPEARED [go_sep]: SIN-LAX_2027-09-18_85000
+  DISAPPEARED [go_sep]: SIN-SFO_2027-09-18_85000
+  DISAPPEARED [go_sep]: HKG-LAX_2027-09-18_75000
+  DISAPPEARED [go_sep]: HKG-SFO_2027-09-18_75000
+  DISAPPEARED [go_sep]: MNL-LAX_2027-09-18_85000
+  DISAPPEARED [go_sep]: MNL-SFO_2027-09-18_85000
+  DISAPPEARED [go_sep]: KUL-SAN_2027-09-18_85000
 
-Aggregate done: shards=16 (ok=16 aborted=0 blocked=0) | queries 238/240 | new deals 0 | degraded=False
+Aggregate done: shards=16 (ok=16 aborted=0 blocked=0) | queries 240/240 | new deals 0 | degraded=False
