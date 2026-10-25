@@ -1,8 +1,7 @@
 Shards: 16 (ok=16 aborted=0 blocked=0) | queries ok 240/240 (100%) | degraded=False
-  NEW [go_nyd]: NRT-SAN_2027-01-01_75000
-  NEW [go_nyd]: NRT-SAN_2027-01-02_75000
-  NEW [go_nyd]: NRT-SAN_2027-01-03_75000
-  NEW [go_nyd]: NRT-SAN_2027-01-04_75000
-WeChat: pushed 4 new deal(s).
+  DISAPPEARED [go_nyd]: NRT-SAN_2027-01-01_75000
+  DISAPPEARED [go_nyd]: NRT-SAN_2027-01-02_75000
+  DISAPPEARED [go_nyd]: NRT-SAN_2027-01-03_75000
+  DISAPPEARED [go_nyd]: NRT-SAN_2027-01-04_75000
 
-Aggregate done: shards=16 (ok=16 aborted=0 blocked=0) | queries 240/240 | new deals 4 | degraded=False
+Aggregate done: shards=16 (ok=16 aborted=0 blocked=0) | queries 240/240 | new deals 0 | degraded=False
