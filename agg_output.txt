@@ -1,5 +1,4 @@
 Shards: 16 (ok=16 aborted=0 blocked=0) | queries ok 240/240 (100%) | degraded=False
-  NEW [go_nyd]: KIX-LAX_2027-01-04_75000
-WeChat: pushed 1 new deal(s).
+  DISAPPEARED [go_nyd]: KIX-LAX_2027-01-04_75000
 
-Aggregate done: shards=16 (ok=16 aborted=0 blocked=0) | queries 240/240 | new deals 1 | degraded=False
+Aggregate done: shards=16 (ok=16 aborted=0 blocked=0) | queries 240/240 | new deals 0 | degraded=False
