@@ -1,3 +1,4 @@
 Shards: 16 (ok=15 aborted=1 blocked=0) | queries ok 237/240 (99%) | degraded=False
+  DISAPPEARED [go_sep]: HKG-SEA_2027-09-17_85000
 
 Aggregate done: shards=16 (ok=15 aborted=1 blocked=0) | queries 237/240 | new deals 0 | degraded=False
