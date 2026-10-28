@@ -1,4 +1,3 @@
 Shards: 16 (ok=16 aborted=0 blocked=0) | queries ok 240/240 (100%) | degraded=False
-  DISAPPEARED [go_sep]: BKK-LAX_2027-09-18_85000
 
 Aggregate done: shards=16 (ok=16 aborted=0 blocked=0) | queries 240/240 | new deals 0 | degraded=False
