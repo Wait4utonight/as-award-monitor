@@ -1,3 +1,3 @@
-Shards: 16 (ok=15 aborted=1 blocked=0) | queries ok 236/240 (98%) | degraded=False
+Shards: 16 (ok=14 aborted=2 blocked=0) | queries ok 231/240 (96%) | degraded=False
 
-Aggregate done: shards=16 (ok=15 aborted=1 blocked=0) | queries 236/240 | new deals 0 | degraded=False
+Aggregate done: shards=16 (ok=14 aborted=2 blocked=0) | queries 231/240 | new deals 0 | degraded=False
