@@ -1,6 +1,3 @@
-Shards: 16 (ok=16 aborted=0 blocked=0) | queries ok 238/240 (99%) | degraded=False
-  REAPPEARED [go_sep]: MNL-SEA_2027-09-17_85000 (gone 48.5h)
-  DISAPPEARED [go_sep]: MNL-SEA_2027-09-17_75000
-WeChat: pushed 1 new deal(s).
+Shards: 16 (ok=16 aborted=0 blocked=0) | queries ok 240/240 (100%) | degraded=False
 
-Aggregate done: shards=16 (ok=16 aborted=0 blocked=0) | queries 238/240 | new deals 1 | degraded=False
+Aggregate done: shards=16 (ok=16 aborted=0 blocked=0) | queries 240/240 | new deals 0 | degraded=False
