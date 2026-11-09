@@ -1,15 +1,13 @@
 Shards: 16 (ok=16 aborted=0 blocked=0) | queries ok 240/240 (100%) | degraded=False
-  REAPPEARED [go_sep]: SIN-LAX_2027-09-17_85000 (gone 417.0h)
-  REAPPEARED [go_sep]: BKK-LAX_2027-09-17_85000 (gone 318.5h)
-  REAPPEARED [go_sep]: HKG-LAX_2027-09-17_75000 (gone 417.0h)
-  REAPPEARED [go_sep]: HKG-SEA_2027-09-17_85000 (gone 313.4h)
-  REAPPEARED [go_sep]: MNL-SEA_2027-09-17_75000 (gone 222.0h)
-  REAPPEARED [go_sep]: MNL-SEA_2027-09-19_75000 (gone 243.5h)
-  REAPPEARED [go_sep]: SGN-LAX_2027-09-17_85000 (gone 384.0h)
-  REAPPEARED [go_sep]: SGN-SFO_2027-09-17_85000 (gone 384.0h)
-  REAPPEARED [go_sep]: SGN-SEA_2027-09-17_85000 (gone 384.0h)
-  DISAPPEARED [go_sep]: MNL-SEA_2027-09-17_85000
-  DISAPPEARED [go_sep]: MNL-SEA_2027-09-19_85000
-WeChat: pushed 9 new deal(s).
+  DISAPPEARED [go_sep]: SGN-SEA_2027-09-17_85000
+  DISAPPEARED [go_sep]: BKK-LAX_2027-09-17_85000
+  DISAPPEARED [go_sep]: SGN-LAX_2027-09-17_85000
+  DISAPPEARED [go_sep]: SGN-SFO_2027-09-17_85000
+  DISAPPEARED [go_sep]: SIN-LAX_2027-09-17_85000
+  DISAPPEARED [go_sep]: HKG-LAX_2027-09-17_75000
+  DISAPPEARED [go_sep]: HKG-SEA_2027-09-17_85000
+  REAPPEARED [go_nyd]: KIX-LAX_2027-01-02_75000 (gone 107.4h)
+  NEW [go_nyd]: KIX-LAX_2027-01-03_75000
+WeChat: pushed 2 new deal(s).
 
-Aggregate done: shards=16 (ok=16 aborted=0 blocked=0) | queries 240/240 | new deals 9 | degraded=False
+Aggregate done: shards=16 (ok=16 aborted=0 blocked=0) | queries 240/240 | new deals 2 | degraded=False
