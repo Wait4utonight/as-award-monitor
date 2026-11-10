@@ -643,3 +643,4 @@
 [2026-11-10T23:02:53.134032+08:00] AGG: shards=16 ok=16 aborted=0 blocked=0 queries=240/240 new=0 degraded=False
 [2026-11-10T23:32:48.907118+08:00] AGG: shards=16 ok=16 aborted=0 blocked=0 queries=240/240 new=0 degraded=False
 [2026-11-11T00:02:50.404651+08:00] AGG: shards=16 ok=16 aborted=0 blocked=0 queries=240/240 new=1 degraded=False
+[2026-11-11T00:32:41.551821+08:00] AGG: shards=16 ok=16 aborted=0 blocked=0 queries=240/240 new=4 degraded=False
