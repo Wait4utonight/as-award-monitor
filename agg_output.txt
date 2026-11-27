@@ -1,4 +1,6 @@
 Shards: 16 (ok=16 aborted=0 blocked=0) | queries ok 240/240 (100%) | degraded=False
-  DISAPPEARED [go_nyd]: NRT-LAX_2027-01-02_95000
+  NEW [go_nyd]: HND-LAX_2027-01-02_95000
+  REAPPEARED [go_nyd]: HND-LAX_2027-01-03_95000 (gone 607.5h)
+WeChat: pushed 2 new deal(s).
 
-Aggregate done: shards=16 (ok=16 aborted=0 blocked=0) | queries 240/240 | new deals 0 | degraded=False
+Aggregate done: shards=16 (ok=16 aborted=0 blocked=0) | queries 240/240 | new deals 2 | degraded=False
